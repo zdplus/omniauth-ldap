@@ -14,7 +14,7 @@ module OmniAuth
       class AuthenticationError < StandardError; end
       class ConnectionError < StandardError; end
 
-      VALID_ADAPTER_CONFIGURATION_KEYS = [:host, :port, :method, :bind_dn, :password, :try_sasl, :sasl_mechanisms, :uid, :base, :allow_anonymous]
+      VALID_ADAPTER_CONFIGURATION_KEYS = [:host, :port, :method, :bind_dn, :password, :try_sasl, :sasl_mechanisms, :uid, :base, :allow_anonymous, :dynamic]
 
       MUST_HAVE_KEYS = [:host, :port, :method, :uid, :base]
 
@@ -65,7 +65,8 @@ module OmniAuth
       #:base => "dc=yourcompany, dc=com",
       # :filter => "(mail=#{user})",
       # :password => psw
-      def bind_as(args = {})        
+      def bind_as(args = {})
+        @connection.auth(args[:base], args[:password]) if @dynamic.eql?('true')
         result = false
         @connection.open do |me|
           rs = me.search args
